@@ -11,7 +11,7 @@ func main() {
 	var url string
 	var weiboUid string
 
-	fmt.Println("请输入微博uid：")
+	fmt.Print("请输入微博uid：")
 	fmt.Scanln(&weiboUid)
 	url = "https://m.weibo.cn/api/container/getIndex?uid=" + weiboUid + "&t=0&type=uid&value=" + weiboUid + "&containerid=107603" + weiboUid
 
