@@ -1,2 +1,2 @@
-# weibospider_go  
+# weiboSpider_go  
 GO 写的微博爬虫
