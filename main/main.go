@@ -1,10 +1,8 @@
 package main
 
 import (
-	"encoding/json"
+	f "./func"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 )
 
 func main() {
@@ -15,8 +13,8 @@ func main() {
 	fmt.Scanln(&weiboUid)
 	url = "https://m.weibo.cn/api/container/getIndex?uid=" + weiboUid + "&t=0&type=uid&value=" + weiboUid + "&containerid=107603" + weiboUid
 
-	pageContent := getHttpResult(url)
-	pageMap := JSONToMap(pageContent)
+	pageContent := f.GetHttpResult(url)
+	pageMap := f.JsonToMap(pageContent)
 
 	data := pageMap["data"].(map[string]interface{})["cards"]
 
@@ -28,24 +26,4 @@ func main() {
 	}
 
 	select {}
-}
-
-func getHttpResult(url string) string {
-	resp, err := http.Get(url)
-	if err != nil {
-		fmt.Println("error")
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	return string(body)
-}
-
-func JSONToMap(str string) map[string]interface{} {
-	var tempMap map[string]interface{}
-	err := json.Unmarshal([]byte(str), &tempMap)
-	if err != nil {
-		panic(err)
-	}
-	return tempMap
 }
