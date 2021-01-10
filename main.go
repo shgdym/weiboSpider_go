@@ -3,27 +3,54 @@ package main
 import (
 	f "./func"
 	"fmt"
+	"os"
+	"strings"
 )
 
 func main() {
-	var url string
 	var weiboUid string
+	var isok float64
 
-	fmt.Print("请输入微博uid：")
+	isok = 1
+	has_nextpage := true
+
+	fmt.Print("please type uid: ")
 	fmt.Scanln(&weiboUid)
-	url = "https://m.weibo.cn/api/container/getIndex?uid=" + weiboUid + "&t=0&type=uid&value=" + weiboUid + "&containerid=107603" + weiboUid
+	sinceId := ""
 
-	pageContent := f.GetHttpResult(url)
-	pageMap := f.JsonToMap(pageContent)
+	for has_nextpage {
+		pageContent := getPageContent(weiboUid, sinceId)
 
-	data := pageMap["data"].(map[string]interface{})["cards"]
+		pageMap := f.JsonToMap(pageContent)
 
-	for _, v := range data.([]interface{}) {
-		item := v.(map[string]interface{})
-		text := item["mblog"].(map[string]interface{})["text"]
+		data := pageMap["data"].(map[string]interface{})["cards"]
 
-		fmt.Println(text)
+		if isok != pageMap["ok"] {
+			break
+		}
+		for _, v := range data.([]interface{}) {
+			item := v.(map[string]interface{})
+			mblog := item["mblog"].(map[string]interface{})
+			id := mblog["id"]
+			sinceId = id.(string)
+			text := mblog["text"]
+			fmt.Println(text)
+		}
+
+		fmt.Print("next page(y/n):")
+		var type_res string
+		fmt.Scanln(&type_res)
+		if strings.ToLower(type_res) != "y" {
+			has_nextpage = false
+		}
 	}
 
-	select {}
+	fmt.Printf("Press any key to exit...")
+	b := make([]byte, 1)
+	os.Stdin.Read(b)
+}
+
+func getPageContent(weiboUid string, sinceId string) string {
+	url := "https://m.weibo.cn/api/container/getIndex?uid=" + weiboUid + "&t=0&type=uid&value=" + weiboUid + "&containerid=107603" + weiboUid + "&since_id=" + sinceId
+	return f.GetHttpResult(url)
 }
